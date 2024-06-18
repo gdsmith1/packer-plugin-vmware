@@ -20,43 +20,22 @@ build {
   sources = ["source.vmware-iso.debian"]
   provisioner "shell" {
     inline = [
-    "sudo apt-get update > /home/vagrant/update.log",
-    "sudo apt-get upgrade -y > /home/vagrant/upgrade.log",
-    "sudo apt-get dist-upgrade -y > /home/vagrant/dist-upgrade.log",
-    "echo 'Hello, World!' > hello.txt",
-    "mkdir /home/vagrant/.ssh",
-    "touch /home/vagrant/.ssh/authorized_keys",
-    "wget --no-check-certificate https://raw.githubusercontent.com/hashicorp/vagrant/main/keys/vagrant.pub -O /home/vagrant/.ssh/authorized_keys",
-    "chmod 700 /home/vagrant/.ssh",
-    "chmod 600 /home/vagrant/.ssh/authorized_keys",
-    "echo 'vagrant ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/vagrant",
-    "sudo chmod 440 /etc/sudoers.d/vagrant",
-    "echo 'UseDNS no' | sudo tee -a /etc/ssh/sshd_config",
-    "sudo service ssh restart",
-    "sudo reboot",
+    "sudo apt-get update",
+    "sudo apt-get upgrade",
+    "sudo apt-get dist-upgrade -y",
+    "sudo apt-get install -y openjdk-11-jdk",
+    "wget https://download.sonatype.com/nexus/3/nexus-3.69.0-02-java11-mac.tgz",
+    "tar -xvf nexus-3.69.0-02-java11-mac.tgz",
     ]
-    expect_disconnect = true
   }
   post-processor "vagrant" {
       output = "output-vmware-iso/package.box"
       keep_input_artifact = true # keeps the build folder
   }
-
   post-processor "vagrant" {
     output = "output-vmware-iso/package.vmx"
     keep_input_artifact = true 
   }
 
-  post-processors {
-    post-processor "vagrant" {
-        keep_input_artifact = true # needed to pass to the next post-processor
-    }
-    post-processor "vagrant-cloud" {
-        access_token = "YOUR TOKEN HERE"
-        box_tag = "gibsmith619/debian11"
-        version = "1.0.1"
-        architecture = "arm64"
-    }
-  }
 
 }
